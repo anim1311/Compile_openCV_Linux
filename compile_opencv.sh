@@ -1,41 +1,66 @@
-## some updating and upgrading 
-sudo apt update
-sudo apt upgrade
-## installing some basic applications
-sudo apt install gcc
-sudo apt install g++
-sudo apt install git
 
-## Install the build tools and dependencies
-sudo apt install build-essential cmake git pkg-config libgtk-3-dev 
-sudo apt install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev 
-sudo apt install libxvidcore-dev libx264-dev libjpeg-dev libpng-dev libtiff-dev 
-sudo apt install gfortran openexr libatlas-base-dev python3-dev python3-numpy 
-sudo apt install libtbb2 libtbb-dev libdc1394-22-dev libopenexr-dev 
-sudo apt install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
 
-##Clone the OpenCV’s and OpenCV contrib repositories
+######################################
+# INSTALL OPENCV ON UBUNTU OR DEBIAN #
+######################################
 
-mkdir ~/opencv_build && cd ~/opencv_build
-git clone https://github.com/opencv/opencv.git
-git clone https://github.com/opencv/opencv_contrib.git
-git checkout 4.2.0
 
-cd ~/opencv_build/opencv
-mkdir -p build && cd build
+# VERSION TO BE INSTALLED
 
-## build the project
-cmake -D CMAKE_BUILD_TYPE=RELEASE \
-    -D CMAKE_INSTALL_PREFIX=/usr/local \
-    -D INSTALL_C_EXAMPLES=ON \
-    -D INSTALL_PYTHON_EXAMPLES=ON \
-    -D OPENCV_GENERATE_PKGCONFIG=ON \
-    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_build/opencv_contrib/modules \
-    -D BUILD_EXAMPLES=ON ..
+OPENCV_VERSION='3.4.2'
 
-## compile 
-CORES=$(nproc)
-make -j$CORES ## Modify the -j flag according to your processor. If you do not know the number of cores in your processor, you can find it by typing nproc
 
-## install opencv
+# 1. KEEP UBUNTU OR DEBIAN UP TO DATE
+
+sudo apt-get -y update
+# sudo apt-get -y upgrade       # Uncomment this line to install the newest versions of all packages currently installed
+# sudo apt-get -y dist-upgrade  # Uncomment this line to, in addition to 'upgrade', handles changing dependencies with new versions of packages
+# sudo apt-get -y autoremove    # Uncomment this line to remove packages that are now no longer needed
+
+
+# 2. INSTALL THE DEPENDENCIES
+
+# Build tools:
+sudo apt-get install -y build-essential cmake
+
+# GUI (if you want to use GTK instead of Qt, replace 'qt5-default' with 'libgtkglext1-dev' and remove '-DWITH_QT=ON' option in CMake):
+sudo apt-get install -y qt5-default libvtk6-dev
+
+# Media I/O:
+sudo apt-get install -y zlib1g-dev libjpeg-dev libwebp-dev libpng-dev libtiff5-dev libjasper-dev libopenexr-dev libgdal-dev
+
+# Video I/O:
+sudo apt-get install -y libdc1394-22-dev libavcodec-dev libavformat-dev libswscale-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev yasm libopencore-amrnb-dev libopencore-amrwb-dev libv4l-dev libxine2-dev
+
+# Parallelism and linear algebra libraries:
+sudo apt-get install -y libtbb-dev libeigen3-dev
+
+# Python:
+sudo apt-get install -y python-dev python-tk python-numpy python3-dev python3-tk python3-numpy
+
+# Java:
+sudo apt-get install -y ant default-jdk
+
+# Documentation:
+sudo apt-get install -y doxygen
+
+
+# 3. INSTALL THE LIBRARY
+
+sudo apt-get install -y unzip wget
+wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip
+unzip ${OPENCV_VERSION}.zip
+rm ${OPENCV_VERSION}.zip
+mv opencv-${OPENCV_VERSION} OpenCV
+cd OpenCV
+mkdir build
+cd build
+cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON -DENABLE_PRECOMPILED_HEADERS=OFF ..
+make -j4
 sudo make install
+sudo ldconfig
+
+
+# 4. EXECUTE SOME OPENCV EXAMPLES AND COMPILE A DEMONSTRATION
+
+# To complete this step, please visit 'http://milq.github.io/install-opencv-ubuntu-debian'.
